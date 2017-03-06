@@ -6,8 +6,8 @@
         "nezaniel/geographiclibrary": "2.0.x-dev"
     },
     "autoload": {
-        "psr-0": {
-            "Nezaniel\\GeographicLibrary\\GoogleMapsAdapter": "Classes"
+        "psr-4": {
+            "Nezaniel\\GeographicLibrary\\GoogleMapsAdapter\\": "Classes"
         }
     }
 }
