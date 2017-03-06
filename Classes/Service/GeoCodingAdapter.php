@@ -12,7 +12,7 @@ namespace Nezaniel\GeographicLibrary\GoogleMapsAdapter\Service;
  *                                                                                                 */
 use Nezaniel\GeographicLibrary\Service\Exception\NoSuchCoordinatesException;
 use Nezaniel\GeographicLibrary\Service\GeoCodingAdapterInterface;
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 
 /**
  * @Flow\Scope("singleton")
