@@ -1,13 +1,13 @@
 {
-  "name": "nezaniel/geographiclibrary-googlemapsadapter",
-  "type": "typo3-flow-package",
-  "description": "Google Maps adapter for the Flow based geograpic library",
-  "require": {
-    "nezaniel/geographiclibrary": "dev-master"
-  },
-  "autoload": {
-    "psr-0": {
-      "Nezaniel\\GeographicLibrary\\GoogleMapsAdapter": "Classes"
+    "name": "nezaniel/geographiclibrary-googlemapsadapter",
+    "type": "typo3-flow-package",
+    "description": "Google Maps adapter for the Flow based geograpic library",
+    "require": {
+        "nezaniel/geographiclibrary": "2.0.x-dev"
+    },
+    "autoload": {
+        "psr-0": {
+            "Nezaniel\\GeographicLibrary\\GoogleMapsAdapter": "Classes"
+        }
     }
-  }
 }
