@@ -17,50 +17,61 @@ use TYPO3\Flow\Annotations as Flow;
 /**
  * @Flow\Scope("singleton")
  */
-class GeoCodingAdapter implements GeoCodingAdapterInterface {
+class GeoCodingAdapter implements GeoCodingAdapterInterface
+{
+    /**
+     * {@inheritdoc}
+     * @param string $address
+     * @return array The coordinates
+     */
+    public function fetchCoordinatesByAddress($address)
+    {
+        $request = curl_init('http://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($address) . '&sensor=false');
+        curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+        $response = json_decode(curl_exec($request));
 
-	/**
-	 * {@inheritdoc}
-	 * @param string $address
-	 * @return array The coordinates
-	 */
-	public function fetchCoordinatesByAddress($address) {
-		$request = curl_init('http://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($address) . '&sensor=false');
-		curl_setopt($request, CURLOPT_RETURNTRANSFER, TRUE);
-		$response = json_decode(curl_exec($request));
+        if (empty($response)) {
+            throw new NoSuchCoordinatesException();
+        }
 
-		return $this->getCoordinatesFromResponse($response);
-	}
+        return $this->getCoordinatesFromResponse($response);
+    }
 
-	/**
-	 * {@inheritdoc}
-	 * @param string $zip
-	 * @param string $countryCode The two character ISO 3166-1 country code
-	 * @return array The coordinates
-	 */
-	public function fetchCoordinatesByPostalCode($zip, $countryCode) {
-		$request = curl_init('http://maps.googleapis.com/maps/api/geocode/json?components=postal_code:' . $zip . '|country:' . $countryCode . '&sensor=false');
-		curl_setopt($request, CURLOPT_RETURNTRANSFER, TRUE);
-		$response = json_decode(curl_exec($request));
+    /**
+     * {@inheritdoc}
+     * @param string $zip
+     * @param string $countryCode The two character ISO 3166-1 country code
+     * @return array The coordinates
+     */
+    public function fetchCoordinatesByPostalCode($zip, $countryCode)
+    {
+        $request = curl_init('http://maps.googleapis.com/maps/api/geocode/json?components=postal_code:' . $zip . '|country:' . $countryCode . '&sensor=false');
+        curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+        $response = json_decode(curl_exec($request));
 
-		return $this->getCoordinatesFromResponse($response);
-	}
+        if (empty($response)) {
+            throw new NoSuchCoordinatesException();
+        }
 
-	/**
-	 * @param \stdClass $response
-	 * @return array
-	 * @throws NoSuchCoordinatesException
-	 */
-	protected function getCoordinatesFromResponse(\stdClass $response) {
-		if (empty($response->results)) {
-			throw new NoSuchCoordinatesException();
-		} else {
-			$location = $response->results[0]->geometry->location;
-			return [
-				'latitude' => $location->lat,
-				'longitude' => $location->lng
-			];
-		}
-	}
+        return $this->getCoordinatesFromResponse($response);
+    }
 
+    /**
+     * @param \stdClass $response
+     * @return array
+     * @throws NoSuchCoordinatesException
+     */
+    protected function getCoordinatesFromResponse(\stdClass $response)
+    {
+        if (empty($response->results)) {
+            throw new NoSuchCoordinatesException();
+        } else {
+            $location = $response->results[0]->geometry->location;
+
+            return [
+                'latitude' => $location->lat,
+                'longitude' => $location->lng
+            ];
+        }
+    }
 }
