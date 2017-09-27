@@ -3,7 +3,7 @@
     "type": "neos-nezaniel",
     "description": "Google Maps adapter for the Flow based geograpic library",
     "require": {
-        "nezaniel/geographiclibrary": "2.0.x-dev"
+        "nezaniel/geographiclibrary": "3.0.x-dev"
     },
     "autoload": {
         "psr-4": {

@@ -1,2 +1,2 @@
-Nezaniel\GeographicLibrary\Service\GeoCodingAdapterInterface:
-  className: 'Nezaniel\GeographicLibrary\GoogleMapsAdapter\Service\GeoCodingAdapter'
+Nezaniel\GeographicLibrary\Domain\Repository\GeoCoderInterface:
+  className: 'Nezaniel\GeographicLibrary\GoogleMapsAdapter\Domain\Repository\GoogleMapsGeoCoder'

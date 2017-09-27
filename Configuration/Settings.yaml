@@ -1,0 +1,5 @@
+Nezaniel:
+  GeographicLibrary:
+    GoogleMapsAdapter:
+      api:
+        key: ''
