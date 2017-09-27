@@ -1,6 +1,6 @@
 {
     "name": "nezaniel/geographiclibrary-googlemapsadapter",
-    "type": "typo3-flow-package",
+    "type": "neos-nezaniel",
     "description": "Google Maps adapter for the Flow based geograpic library",
     "require": {
         "nezaniel/geographiclibrary": "2.0.x-dev"
