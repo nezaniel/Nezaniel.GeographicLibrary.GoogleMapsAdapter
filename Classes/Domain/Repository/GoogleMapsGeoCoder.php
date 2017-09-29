@@ -58,13 +58,37 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
      */
     public function fetchCoordinatesByPostalCode(string $zip, string $countryCode): GeoCoordinates
     {
-        $requestUri = 'https://maps.googleapis.com/maps/api/geocode/json?components=postal_code:' . $zip . '|country:' . $countryCode . '|locale:de&sensor=false';
+        $requestUri = 'https://maps.googleapis.com/maps/api/geocode/json?components=postal_code:' . $zip . '|country:' . $countryCode . '&sensor=false';
         if ($this->apiKey) {
             $requestUri .= '&key=' . $this->apiKey;
         }
         if ($this->localizationService->getConfiguration()->getCurrentLocale()->getLanguage()) {
             $requestUri .= '&language=' . $this->localizationService->getConfiguration()->getCurrentLocale()->getLanguage();
         }
+        $request = curl_init($requestUri);
+        curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+        $response = json_decode(curl_exec($request));
+
+        if (empty($response)) {
+            throw new NoSuchCoordinatesException();
+        }
+
+        return $this->getCoordinatesFromResponse($response);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function enrichGeoCoordinates(GeoCoordinates $coordinates): GeoCoordinates
+    {
+        $requestUri = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $coordinates->getLatitude() . ',' . $coordinates->getLongitude() . '&sensor=false';
+        if ($this->apiKey) {
+            $requestUri .= '&key=' . $this->apiKey;
+        }
+        if ($this->localizationService->getConfiguration()->getCurrentLocale()->getLanguage()) {
+            $requestUri .= '&language=' . $this->localizationService->getConfiguration()->getCurrentLocale()->getLanguage();
+        }
+
         $request = curl_init($requestUri);
         curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
         $response = json_decode(curl_exec($request));
@@ -88,21 +112,16 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
         } else {
             $primaryLocation = $response->results[0];
             $coordinates = $primaryLocation->geometry->location;
-            $address = null;
-            $addressLocality = null;
             $postalCode = null;
             $countryCode = null;
 
             foreach ($primaryLocation->address_components as $addressComponent) {
                 switch (reset($addressComponent->types)) {
-                    case 'country':
-                        $countryCode = new CountryCode($addressComponent->short_name);
-                        break;
-                    case 'locality':
-                        $addressLocality = $addressComponent->short_name;
-                        break;
                     case 'postal_code':
                         $postalCode = $addressComponent->short_name;
+                        break;
+                    case 'country':
+                        $countryCode = new CountryCode($addressComponent->short_name);
                         break;
                     default:
                 }
@@ -112,7 +131,7 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
                 $coordinates->lat,
                 $coordinates->lng,
                 null,
-                $postalCode . ' ' . $addressLocality,
+                $primaryLocation->formatted_address ?? null,
                 $postalCode,
                 $countryCode
             );
