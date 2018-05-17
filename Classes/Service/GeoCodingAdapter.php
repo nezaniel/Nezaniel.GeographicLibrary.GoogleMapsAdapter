@@ -20,13 +20,19 @@ use Neos\Flow\Annotations as Flow;
 class GeoCodingAdapter implements GeoCodingAdapterInterface
 {
     /**
+     * @Flow\InjectConfiguration(path="GeoCodingService.api.key")
+     * @var string
+     */
+    protected $apiKey;
+
+    /**
      * {@inheritdoc}
      * @param string $address
      * @return array The coordinates
      */
     public function fetchCoordinatesByAddress($address)
     {
-        $request = curl_init('http://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($address) . '&sensor=false');
+        $request = curl_init('https://maps.googleapis.com/maps/api/geocode/json?address=' . urlencode($address) . $this->getApiKey());
         curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
         $response = json_decode(curl_exec($request));
 
@@ -45,7 +51,7 @@ class GeoCodingAdapter implements GeoCodingAdapterInterface
      */
     public function fetchCoordinatesByPostalCode($zip, $countryCode)
     {
-        $request = curl_init('http://maps.googleapis.com/maps/api/geocode/json?components=postal_code:' . $zip . '|country:' . $countryCode . '&sensor=false');
+        $request = curl_init('https://maps.googleapis.com/maps/api/geocode/json?components=postal_code:' . $zip . '|country:' . $countryCode . $this->getApiKey());
         curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
         $response = json_decode(curl_exec($request));
 
@@ -73,5 +79,12 @@ class GeoCodingAdapter implements GeoCodingAdapterInterface
                 'longitude' => $location->lng
             ];
         }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getApiKey() {
+        return $this->apiKey ? '&key=' . $this->apiKey : '';
     }
 }
