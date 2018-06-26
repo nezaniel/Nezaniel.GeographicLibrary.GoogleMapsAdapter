@@ -47,7 +47,7 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
         $response = json_decode(curl_exec($request));
 
         if (empty($response)) {
-            throw new NoSuchCoordinatesException();
+            throw new NoSuchCoordinatesException('Got empty response for address ' . $address);
         }
 
         return $this->getCoordinatesFromResponse($response);
@@ -58,7 +58,8 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
      */
     public function fetchCoordinatesByPostalCode(string $zip, string $countryCode): GeoCoordinates
     {
-        $requestUri = 'https://maps.googleapis.com/maps/api/geocode/json?components=postal_code:' . $zip . '|country:' . $countryCode . '&sensor=false';
+        $components = 'postal_code:' . $zip . '|country:' . $countryCode;
+        $requestUri = 'https://maps.googleapis.com/maps/api/geocode/json?components=' . $components . '&sensor=false';
         if ($this->apiKey) {
             $requestUri .= '&key=' . $this->apiKey;
         }
@@ -70,7 +71,7 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
         $response = json_decode(curl_exec($request));
 
         if (empty($response)) {
-            throw new NoSuchCoordinatesException();
+            throw new NoSuchCoordinatesException('Got empty response for components ' . $components);
         }
 
         return $this->getCoordinatesFromResponse($response);
@@ -81,7 +82,8 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
      */
     public function enrichGeoCoordinates(GeoCoordinates $coordinates): GeoCoordinates
     {
-        $requestUri = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $coordinates->getLatitude() . ',' . $coordinates->getLongitude() . '&sensor=false';
+        $requestCoordinates = $coordinates->getLatitude() . ',' . $coordinates->getLongitude();
+        $requestUri = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $requestCoordinates . '&sensor=false';
         if ($this->apiKey) {
             $requestUri .= '&key=' . $this->apiKey;
         }
@@ -94,7 +96,7 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
         $response = json_decode(curl_exec($request));
 
         if (empty($response)) {
-            throw new NoSuchCoordinatesException();
+            throw new NoSuchCoordinatesException('Got empty response for coordinates ' . $requestCoordinates);
         }
 
         return $this->getCoordinatesFromResponse($response);
@@ -108,7 +110,7 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
     protected function getCoordinatesFromResponse(\stdClass $response): GeoCoordinates
     {
         if (empty($response->results)) {
-            throw new NoSuchCoordinatesException();
+            throw new NoSuchCoordinatesException('Got empty result set for response');
         } else {
             $primaryLocation = $response->results[0];
             $coordinates = $primaryLocation->geometry->location;
