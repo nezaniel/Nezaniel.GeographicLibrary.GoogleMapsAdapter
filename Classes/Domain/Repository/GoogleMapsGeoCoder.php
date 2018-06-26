@@ -110,7 +110,7 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
     protected function getCoordinatesFromResponse(\stdClass $response): GeoCoordinates
     {
         if (empty($response->results)) {
-            throw new NoSuchCoordinatesException('Got empty result set for response');
+            throw new NoSuchCoordinatesException($response->error_message ?? 'Got empty result set for response');
         } else {
             $primaryLocation = $response->results[0];
             $coordinates = $primaryLocation->geometry->location;
