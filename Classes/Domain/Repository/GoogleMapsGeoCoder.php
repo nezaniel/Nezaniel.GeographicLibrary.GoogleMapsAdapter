@@ -41,7 +41,11 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
         }
         if ($this->localizationService->getConfiguration()->getCurrentLocale()->getLanguage()) {
             $requestUri .= '&language=' . $this->localizationService->getConfiguration()->getCurrentLocale()->getLanguage();
+            if ($this->localizationService->getConfiguration()->getCurrentLocale()->getLanguage() !== 'en') {
+                $requestUri .= ',en';
+            }
         }
+
         $request = curl_init($requestUri);
         curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
         $response = json_decode(curl_exec($request));
@@ -65,6 +69,9 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
         }
         if ($this->localizationService->getConfiguration()->getCurrentLocale()->getLanguage()) {
             $requestUri .= '&language=' . $this->localizationService->getConfiguration()->getCurrentLocale()->getLanguage();
+            if ($this->localizationService->getConfiguration()->getCurrentLocale()->getLanguage() !== 'en') {
+                $requestUri .= ',en';
+            }
         }
         $request = curl_init($requestUri);
         curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
@@ -89,6 +96,9 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
         }
         if ($this->localizationService->getConfiguration()->getCurrentLocale()->getLanguage()) {
             $requestUri .= '&language=' . $this->localizationService->getConfiguration()->getCurrentLocale()->getLanguage();
+            if ($this->localizationService->getConfiguration()->getCurrentLocale()->getLanguage() !== 'en') {
+                $requestUri .= ',en';
+            }
         }
 
         $request = curl_init($requestUri);
