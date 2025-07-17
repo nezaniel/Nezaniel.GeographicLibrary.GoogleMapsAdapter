@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Nezaniel\GeographicLibrary\GoogleMapsAdapter;
 
+use Nezaniel\GeographicLibrary\CoordinatesCouldNotBeResolved;
 use Nezaniel\GeographicLibrary\CountryCode;
 use Nezaniel\GeographicLibrary\GeoCoordinates;
-use Nezaniel\GeographicLibrary\NoSuchCoordinatesException;
 use Nezaniel\GeographicLibrary\GeoCoderInterface;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\I18n\Service as LocalizationService;
@@ -38,12 +38,12 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
             }
         }
 
-        $request = curl_init($requestUri);
-        curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
-        $response = json_decode(curl_exec($request));
+        $request = \curl_init($requestUri);
+        \curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+        $response = \json_decode(\curl_exec($request));
 
         if (empty($response)) {
-            throw new NoSuchCoordinatesException('Got empty response for address ' . $address);
+            throw new CoordinatesCouldNotBeResolved('Got empty response for address ' . $address);
         }
 
         return $this->getCoordinatesFromResponse($response);
@@ -65,12 +65,12 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
                 $requestUri .= ',en';
             }
         }
-        $request = curl_init($requestUri);
-        curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
-        $response = json_decode(curl_exec($request));
+        $request = \curl_init($requestUri);
+        \curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+        $response = \json_decode(\curl_exec($request));
 
         if (empty($response)) {
-            throw new NoSuchCoordinatesException('Got empty response for components ' . $components);
+            throw new CoordinatesCouldNotBeResolved('Got empty response for components ' . $components);
         }
 
         return $this->getCoordinatesFromResponse($response);
@@ -81,7 +81,7 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
      */
     public function enrichGeoCoordinates(GeoCoordinates $coordinates): GeoCoordinates
     {
-        $requestCoordinates = $coordinates->getLatitude() . ',' . $coordinates->getLongitude();
+        $requestCoordinates = $coordinates->latitude . ',' . $coordinates->longitude;
         $requestUri = 'https://maps.googleapis.com/maps/api/geocode/json?latlng=' . $requestCoordinates . '&sensor=false';
         if ($this->apiKey) {
             $requestUri .= '&key=' . $this->apiKey;
@@ -93,21 +93,24 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
             }
         }
 
-        $request = curl_init($requestUri);
-        curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
-        $response = json_decode(curl_exec($request));
+        $request = \curl_init($requestUri);
+        \curl_setopt($request, CURLOPT_RETURNTRANSFER, true);
+        $response = \json_decode(\curl_exec($request));
 
         if (empty($response)) {
-            throw new NoSuchCoordinatesException('Got empty response for coordinates ' . $requestCoordinates);
+            throw new CoordinatesCouldNotBeResolved('Got empty response for coordinates ' . $requestCoordinates);
         }
 
         return $this->getCoordinatesFromResponse($response);
     }
 
+    /**
+     * @throws CoordinatesCouldNotBeResolved
+     */
     protected function getCoordinatesFromResponse(\stdClass $response): GeoCoordinates
     {
         if (empty($response->results)) {
-            throw new NoSuchCoordinatesException($response->error_message ?? 'Got empty result set for response');
+            throw new CoordinatesCouldNotBeResolved($response->error_message ?? 'Got empty result set for response');
         } else {
             $primaryLocation = $response->results[0];
             $coordinates = $primaryLocation->geometry->location;
