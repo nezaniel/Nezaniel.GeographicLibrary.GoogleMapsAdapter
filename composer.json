@@ -1,9 +1,12 @@
 {
     "name": "nezaniel/geographiclibrary-googlemapsadapter",
-    "type": "neos-nezaniel",
-    "description": "Google Maps adapter for the Flow based geograpic library",
+    "type": "neos-package",
+    "description": "Google Maps adapter for the Neos.Flow based geographic library",
     "require": {
-        "nezaniel/geographiclibrary": "4.0.x-dev"
+        "php": "^8.2",
+        "neos/flow": "^8.0 | ^9.0",
+        "nezaniel/geographiclibrary": "^5.0",
+        "ext-curl": "*"
     },
     "autoload": {
         "psr-4": {

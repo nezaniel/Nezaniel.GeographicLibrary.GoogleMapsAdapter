@@ -1,34 +1,26 @@
 <?php
 
-namespace Nezaniel\GeographicLibrary\GoogleMapsAdapter\Domain\Repository;
+declare(strict_types=1);
 
-/*                                                                                                 *
- * This script belongs to the Neos Flow package "Nezaniel.GeographicLibrary.GoogleMapsAdapter".   *
- *                                                                                                 */
-use Nezaniel\GeographicLibrary\Application\Value\CountryCode;
-use Nezaniel\GeographicLibrary\Application\Value\GeoCoordinates;
-use Nezaniel\GeographicLibrary\Domain\Exception\NoSuchCoordinatesException;
-use Nezaniel\GeographicLibrary\Domain\Repository\GeoCoderInterface;
+namespace Nezaniel\GeographicLibrary\GoogleMapsAdapter;
+
+use Nezaniel\GeographicLibrary\CountryCode;
+use Nezaniel\GeographicLibrary\GeoCoordinates;
+use Nezaniel\GeographicLibrary\NoSuchCoordinatesException;
+use Nezaniel\GeographicLibrary\GeoCoderInterface;
 use Neos\Flow\Annotations as Flow;
-use Neos\Flow\I18n;
+use Neos\Flow\I18n\Service as LocalizationService;
 
-/**
- * @Flow\Scope("singleton")
- */
+#[Flow\Scope('singleton')]
 class GoogleMapsGeoCoder implements GeoCoderInterface
 {
-    /**
-     * @Flow\Inject
-     * @var I18n\Service
-     */
-    protected $localizationService;
+    #[Flow\InjectConfiguration(path: 'api.key')]
+    protected ?string $apiKey = null;
 
-    /**
-     * @Flow\InjectConfiguration(path="api.key")
-     * @var string
-     */
-    protected $apiKey;
-
+    public function __construct(
+        private readonly LocalizationService $localizationService,
+    ) {
+    }
 
     /**
      * {@inheritdoc}
@@ -60,9 +52,9 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
     /**
      * {@inheritdoc}
      */
-    public function fetchCoordinatesByPostalCode(string $zip, string $countryCode): GeoCoordinates
+    public function fetchCoordinatesByPostalCode(string $postalCode, CountryCode $countryCode): GeoCoordinates
     {
-        $components = 'postal_code:' . $zip . '|country:' . $countryCode;
+        $components = 'postal_code:' . $postalCode . '|country:' . $countryCode->value;
         $requestUri = 'https://maps.googleapis.com/maps/api/geocode/json?components=' . $components . '&sensor=false';
         if ($this->apiKey) {
             $requestUri .= '&key=' . $this->apiKey;
@@ -112,11 +104,6 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
         return $this->getCoordinatesFromResponse($response);
     }
 
-    /**
-     * @param \stdClass $response
-     * @return GeoCoordinates
-     * @throws NoSuchCoordinatesException
-     */
     protected function getCoordinatesFromResponse(\stdClass $response): GeoCoordinates
     {
         if (empty($response->results)) {
