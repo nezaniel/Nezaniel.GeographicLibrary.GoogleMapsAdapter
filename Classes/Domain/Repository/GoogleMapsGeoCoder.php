@@ -51,7 +51,7 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
         $response = json_decode(curl_exec($request));
 
         if (empty($response)) {
-            throw new NoSuchCoordinatesException('Got empty response for address ' . $address);
+            throw new NoSuchCoordinatesException('Got empty response for address ' . $address . ' (' ($response->error_message ?? 'no message') . ')');
         }
 
         return $this->getCoordinatesFromResponse($response);
@@ -78,7 +78,7 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
         $response = json_decode(curl_exec($request));
 
         if (empty($response)) {
-            throw new NoSuchCoordinatesException('Got empty response for components ' . $components);
+            throw new NoSuchCoordinatesException('Got empty response for components ' . $components . ' (' ($response->error_message ?? 'no message') . ')');
         }
 
         return $this->getCoordinatesFromResponse($response);
@@ -106,7 +106,7 @@ class GoogleMapsGeoCoder implements GeoCoderInterface
         $response = json_decode(curl_exec($request));
 
         if (empty($response)) {
-            throw new NoSuchCoordinatesException('Got empty response for coordinates ' . $requestCoordinates);
+            throw new NoSuchCoordinatesException('Got empty response for coordinates ' . $requestCoordinates . ' (' ($response->error_message ?? 'no message') . ')');
         }
 
         return $this->getCoordinatesFromResponse($response);
